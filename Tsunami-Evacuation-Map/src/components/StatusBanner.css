@@ -1,0 +1,24 @@
+#status-banner {
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 18px;
+  color: white;
+}
+
+#status-banner.status-offline {
+  background-color: #616161;
+}
+
+#status-banner.status-normal {
+  background-color: #2e7d32;
+}
+
+#status-banner.status-watch {
+  background-color: #f9a825;
+  color: #08060d;
+}
+
+#status-banner.status-warning {
+  background-color: #c62828;
+}

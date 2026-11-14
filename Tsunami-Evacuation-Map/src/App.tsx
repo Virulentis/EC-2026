@@ -1,33 +1,29 @@
-
-import './App.css'
-import EvacuationMap from './EvacuationMap';
-import MapData from './MapData.tsx';
+import "./App.css";
+import EvacuationMap from "./components/EvacuationMap";
+import MapData from "./components/MapData";
+import StatusBanner from "./components/StatusBanner";
 
 function App() {
   return (
     <>
-    <section>
-    <div id="top-header">
-      <h2 id="header">
-        Tsunami Evacuation Map
-      </h2>
-    </div>
-    </section>
-    <div id="spacer"></div>
-    <section>
-      <div id="dashboard">
-        <div id="map">
-            <EvacuationMap />
+      <section>
+        <div id="top-header">
+          <h1 id="header">Tsunami Evacuation Map</h1>
         </div>
-        <div id="data">
+      </section>
+
+      <div id="spacer"></div>
+
+      <StatusBanner message="Offline" level="offline" />
+
+      <section>
+        <div id="dashboard">
+          <EvacuationMap />
           <MapData />
         </div>
-      </div>
-    </section>
-    <section>
-    </section>
+      </section>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
