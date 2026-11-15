@@ -94,7 +94,9 @@ def nearest_safe_node(nodes, start, not_a_stop=[]):
 
 
 
-def find_route(starting_node, transport, flooded, closed, not_a_stop=[], changed_weights={}):
+def find_route(starting_node, transport, flooded, closed, not_a_stop=[], changed_weights=None):
+    if changed_weights is None:
+        changed_weights = {}
     
     
     Transportation_Mult = {
@@ -105,11 +107,6 @@ def find_route(starting_node, transport, flooded, closed, not_a_stop=[], changed
         "Wheelchair": 0.1,
         "Wheelchair (stolen)": 0.05
     }
-    # starting_node = "I"
-    # transport = "Car"
-    # flooded = ['G', 'A', 'C']
-    # closed = ['B-C', 'N-O']
-    changed_weights = {"G-K": 7, "J4-L": 3}   # road: new weight
 
     
 
@@ -140,7 +137,7 @@ def find_route(starting_node, transport, flooded, closed, not_a_stop=[], changed
     best = {
         "name": name,
         "distance": distance,
-        "time": round(distance * Transportation_Mult.get(transport, 1.0), 2),
+        "time": round(distance / Transportation_Mult.get(transport, 1.0), 2),
         "route": route,
         "desination_elevation": nodes[name].elevation
     }
