@@ -127,16 +127,4 @@ def find_route(starting_node, transport, flooded, closed):
 
     result = nearest_safe_node(nodes, starting_node)
 
-    if result is None:
-        print(f"No safe node reachable from {starting_node}.")
-    else:
-        name, distance, route = result
-        print(f"nearest safe route node: {name}, distance: {distance}, time required: {distance/Transportation_Mult.get(transport, 1.0)}hr route: {' -> '.join(route)}")
-
-        alternative = nearest_safe_node(nodes, starting_node, [name])
-        
-        if alternative is None:
-            print(f"No safe alternative node reachable from {starting_node}.")
-        else:
-            alt_name, alt_distance, alt_route = alternative
-            print(f"nearest safe alternative node: {alt_name}, distance: {alt_distance}, time required: {alt_distance/Transportation_Mult.get(transport, 1.0)}hr route: {' -> '.join(alt_route)}")
+    return result
