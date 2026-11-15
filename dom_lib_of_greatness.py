@@ -2,39 +2,35 @@
 from platform import node
 
 
-def print_instructions(start: str, directions: list[str]) -> None:  
+def print_instructions(start: str, directions: list[str], end: str) -> str:  
+
+        instructions = "\033[4mEVACUATION ROUTE INSTRUCTIONS:\033[0m\n"
 
         # destination
-        print(f"proceed to location: {start}\n") 
+        instructions += f"Starting Location: {start}\nDestination: {end}\n\n"
 
         # route
+        instructions += "Location Path:\n"
         
-        print("Loaction Path:\n")
-
         for i in range(len(directions)):
 
-          print(f"From {start} move to {directions[i]}\n")
+          instructions += f" {i+1}. From {start} proceed to {directions[i]}\n"
 
           start = directions[i]
-        
 
-        #instructions to get to destination
-
-
-
-# printing outcomes
-
-# list of nodes
-# from x go to y
+        return instructions
 
 # directions = list of points in order
-def main():
 
-    start = "A"
-    directions = ["C", "E", "G", "J", "K"]
+# def main():
 
-    # start
-    print_instructions(start, directions)
+#     end = "K"
+#     start = "A"
+#     directions = ["C", "E", "G", "J", "K"]
 
-if __name__ == "__main__":
-    main()
+#     # start
+#     result = print_instructions(start, directions, end)
+#     print(result)
+
+# if __name__ == "__main__":
+#     main()
