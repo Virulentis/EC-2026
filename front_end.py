@@ -1,11 +1,14 @@
 import json
+import os
 import re
 import map_drawer
 import tkinter as tk
 from tkinter import ttk, messagebox
 from transport import find_route
+import dom_lib_of_greatness
 
-MAP_IMG_PATH = r"resources/map.png"
+MAP_IMG_PATH = r"temp/map.png"
+RESULTS_PATH = r"temp/result"
 START_LOCATIONS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
 POSSIBLE_LOCATION = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'J1', 'J2', 'J3', 'J4']
 TRANSPORT_OPTIONS = ["Car", "Walk", "Walking with A Child", "Wheelchair"]
@@ -159,7 +162,41 @@ class MapApp:
 
     def on_submit(self):
         input_vals = self.get_input_vals()
-        transport = find_route(input_vals["start_pos"], input_vals["transport"], input_vals["flooded"], input_vals["closed"])
+        results = find_route(input_vals["start_pos"], input_vals["transport"], input_vals["flooded"], input_vals["closed"])
+
+        if not results:
+            messagebox.showerror("No Route", "No safe route could be found.")
+            return
+
+        map_drawer.draw_route(results["route"], output_folder=RESULTS_PATH)
+        self.show_results(results)
+
+    def show_results(self, results):
+        win = tk.Toplevel(self.root)
+        win.title("Route Result")
+        win.resizable(False, False)
+
+        istructions = dom_lib_of_greatness.print_instructions(results["route"][0],results["route"][1:-1],results["route"][-1])
+        tk.Label(win, text=istructions).pack(pady=(0, 8))
+        tk.Label(win, text=f"Distance: {results['distance']}    Time: {results['time']}").pack(pady=(0, 8))
+
+        files = [f for f in os.listdir(RESULTS_PATH) if f.startswith("step") and f.endswith(".png")]
+        files.sort(key=lambda f: int(f[4:-4]))
+        frames = [tk.PhotoImage(file=os.path.join(RESULTS_PATH, f)) for f in files]
+
+        img_label = tk.Label(win)
+        img_label.pack(padx=15, pady=(0, 15))
+        img_label.frames = frames
+
+        def cycle(i=0):
+            if not win.winfo_exists():
+                return
+            img_label.config(image=frames[i])
+            delay = 1500 if i == len(frames) - 1 else 500
+            win.after(delay, cycle, (i + 1) % len(frames))
+
+        if frames:
+            cycle()
 
 
 if __name__ == "__main__":
