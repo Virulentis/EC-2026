@@ -43,8 +43,8 @@ def print_instructions_v2(results:dict):
       # instructions += f" {i+1}. From {results['route'][i-1] if i > 0 else results['name']} proceed to {results['route'][i]}\n"
       instructions += f" {i+1}. {results['route'][i]} -> {results['route'][i+1]}\n"
     instructions += f"\nTotal Distance: {results['distance']} units\n"
-    instructions += f"Estimated Time: {results['time']} minutes\n"
-    instructions += f"Destination Elevation: {results['desination_elevation']} meters\n\n"
+    instructions += f"Estimated Time: {results['time']} hours\n"
+    instructions += f"Destination Elevation: {results['desination_elevation']}\n\n"
 
     return instructions
 
