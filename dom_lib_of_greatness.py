@@ -1,34 +1,6 @@
 
 from platform import node
 
-
-# def print_instructions(start: str, directions: list[str], end: str) -> str:  
-
-#         instructions = "\033[4mEVACUATION ROUTE INSTRUCTIONS:\033[0m\n"
-
-#         # destination
-#         instructions += f"Starting Location: {start}\nDestination: {end}\n\n"
-
-#         # route
-#         instructions += "Location Path:\n"
-        
-#         for i in range(len(directions)):
-
-#           instructions += f" {i+1}. From {start} proceed to {directions[i]}\n"
-
-#           start = directions[i]
-
-#         # #alternative route
-#         # alt_instructions = "Alternative Route:\n"
-#         # for i in range(len(alt_directions)):
-              
-#         #   alt_instructions += f" {i+1}. From {start} proceed to {alt_directions[i]}\n"
-
-#         return instructions 
-
-
-# directions = list of points in order
-
 def print_instructions_v2(results:dict):
     instructions = "EVACUATION ROUTE INSTRUCTIONS:\n"
 
@@ -56,14 +28,6 @@ def print_results(results):
 
 def main():
 
-    # end = "K"
-    # start = "A"
-    # directions = ["C", "E", "G", "J", "K"]
-
-    # # alt_directions = ["B", "D", "F", "H", "I", "K"]
-
-    # # start
-    # result = print_instructions(start, directions, end)
     input = {
         "name": "A",
         "distance": 5,
