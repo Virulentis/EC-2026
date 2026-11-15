@@ -56,13 +56,16 @@ def find_route(starting_node, transport, flooded, closed):
     Transportation_Mult = {
         "Car": 1.0,
         "Bicycle": 0.5,
-        "Walk": 0.3
+        "Walk": 0.3,
+        "Walking with A Child": 0.2,
+        "Wheelchair": 0.1,
+        "Wheelchair (stolen)": 0.05
     }
     # starting_node = "I"
     # transport = "Car"
     # flooded = ['G', 'A', 'C']
     # closed = ['B-C', 'N-O']
-
+    changed_weights = {"G-K": 7, "J4-L": 3}   # road: new weight
 
     elevations: dict[str, float] = {
         "A": 45, "B": 12, "C": 60, "D": 35, "E": 55, "F": 18, "G": 70, "H": 40,
@@ -128,15 +131,14 @@ def find_route(starting_node, transport, flooded, closed):
     result = nearest_safe_node(nodes, starting_node)
 
     if result is None:
-        print(f"No safe node reachable from {starting_node}.")
-    else:
-        name, distance, route = result
-        print(f"nearest safe route node: {name}, distance: {distance}, time required: {distance/Transportation_Mult.get(transport, 1.0)}hr route: {' -> '.join(route)}")
+        return None     # no safe place at all
 
-        alternative = nearest_safe_node(nodes, starting_node, [name])
-        
-        if alternative is None:
-            print(f"No safe alternative node reachable from {starting_node}.")
-        else:
-            alt_name, alt_distance, alt_route = alternative
-            print(f"nearest safe alternative node: {alt_name}, distance: {alt_distance}, time required: {alt_distance/Transportation_Mult.get(transport, 1.0)}hr route: {' -> '.join(alt_route)}")
+    name, distance, route = result
+    best = {
+        "name": name,
+        "distance": distance,
+        "time": distance * Transportation_Mult.get(transport, 1.0),
+        "route": route,
+    }
+
+    return best
