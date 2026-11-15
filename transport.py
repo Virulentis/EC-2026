@@ -94,7 +94,9 @@ def nearest_safe_node(nodes, start, not_a_stop=[]):
 
 
 
-def find_route(starting_node, transport, flooded, closed, not_a_stop=[], changed_weights={}):
+def find_route(starting_node, transport, flooded, closed, not_a_stop=[], changed_weights=None):
+    if changed_weights is None:
+        changed_weights = {}
     
     
     Transportation_Mult = {

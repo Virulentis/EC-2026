@@ -1,36 +1,46 @@
 
 from platform import node
 
+def print_instructions_v2(results:dict):
+    instructions = "EVACUATION ROUTE INSTRUCTIONS:\n"
 
-def print_instructions(start: str, directions: list[str], end: str) -> str:  
+    # destination
+    instructions += f"Starting Location: {results['name']}\nDestination: {results['route'][-1]}\n\n"
 
-        instructions = "\033[4mEVACUATION ROUTE INSTRUCTIONS:\033[0m\n"
+    # route
+    instructions += "Location Path:\n\n"
+    
+    for i in range(len(results['route'])-1):
 
-        # destination
-        instructions += f"Starting Location: {start}\nDestination: {end}\n\n"
+      # instructions += f" {i+1}. From {results['route'][i-1] if i > 0 else results['name']} proceed to {results['route'][i]}\n"
+      instructions += f" {i+1}. {results['route'][i]} -> {results['route'][i+1]}\n"
+    instructions += f"\nTotal Distance: {results['distance']} units\n"
+    instructions += f"Estimated Time: {results['time']} minutes\n"
+    instructions += f"Destination Elevation: {results['desination_elevation']} meters\n\n"
 
-        # route
-        instructions += "Location Path:\n"
-        
-        for i in range(len(directions)):
+    return instructions
 
-          instructions += f" {i+1}. From {start} proceed to {directions[i]}\n"
 
-          start = directions[i]
+def print_results(results):
 
-        return instructions
+  with open ("print_results.txt", "w") as file:
+     file.write(results)
 
-# directions = list of points in order
+def main():
 
-# def main():
+    input = {
+        "name": "A",
+        "distance": 5,
+        "time": 10,
+        "route": ["A", "j1", "c"],
+        "desination_elevation": 4.5
+    }
+    result = print_instructions_v2(input)
+    print(result)
 
-#     end = "K"
-#     start = "A"
-#     directions = ["C", "E", "G", "J", "K"]
+    print_results(result)
 
-#     # start
-#     result = print_instructions(start, directions, end)
-#     print(result)
 
-# if __name__ == "__main__":
-#     main()
+
+if __name__ == "__main__":
+    main()

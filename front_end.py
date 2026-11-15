@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import webbrowser
 import map_drawer
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -65,12 +66,19 @@ class MapApp:
         self.lists_frame.columnconfigure(0, weight=1, uniform="lists")
         self.lists_frame.columnconfigure(1, weight=1, uniform="lists")
 
-        self.flooded_listbox = self.build_list_frame(self.lists_frame, "Flooded Regions", column=0, validator=self.validate_flooded)
-        self.closed_listbox = self.build_list_frame(self.lists_frame, "Closed Paths", column=1, validator=self.validate_closed_path)
+        self.flooded_listbox = self.build_list_frame(self.lists_frame, "Flooded Regions", column=0, validator=self.validate_flooded, hint="e.g. A or J1")
+        self.closed_listbox = self.build_list_frame(self.lists_frame, "Closed Paths", column=1, validator=self.validate_closed_path, hint="e.g. A-B")
 
-        #Calculate Button
-        self.submit_btn = ttk.Button(self.root, text="Calculate", command=self.on_submit)
-        self.submit_btn.pack(pady=10)
+        #Advanced Options (custom path weights) - stored here so they persist when the window closes
+        self.changed_weights = {}
+        self.advanced_win = None
+
+        #Buttons
+        btn_row = tk.Frame(self.root)
+        btn_row.pack(pady=10)
+        ttk.Button(btn_row, text="Advanced Options", command=self.open_advanced_options).pack(side="left", padx=5)
+        self.submit_btn = ttk.Button(btn_row, text="Calculate", command=self.on_submit)
+        self.submit_btn.pack(side="left", padx=5)
 
         # Redraw the map whenever the start location changes
         self.start_var.trace_add("write", lambda *args: self.update_map())
@@ -95,7 +103,7 @@ class MapApp:
         self.img_label.image = self.map_photo
 
         #Template for the listboxes
-    def build_list_frame(self, parent, title, column, validator):
+    def build_list_frame(self, parent, title, column, validator, hint=""):
         frame = tk.LabelFrame(parent, text=title, padx=8, pady=8)
         frame.grid(row=0, column=column, sticky="nsew", padx=(0, 5) if column == 0 else (5, 0))
         frame.columnconfigure(0, weight=1)
@@ -110,11 +118,13 @@ class MapApp:
         scrollbar.grid(row=1, column=2, sticky="ns")
         listbox.config(yscrollcommand=scrollbar.set)
 
+        tk.Label(frame, text=hint, fg="gray", font=("Helvetica", 10)).grid(row=2, column=0, columnspan=3, sticky="w", pady=(2, 0))
+
         add = lambda event=None: self.add_item(entry, listbox, validator)
         ttk.Button(frame, text="Add", width=5, command=add).grid(row=0, column=1, columnspan=2, padx=(5, 0), pady=(0, 5))
 
         remove = lambda event=None: self.remove_selected(listbox)
-        ttk.Button(frame, text="Remove", command=remove).grid(row=2, column=0, columnspan=3, sticky="ew", pady=(5, 0))
+        ttk.Button(frame, text="Remove", command=remove).grid(row=3, column=0, columnspan=3, sticky="ew", pady=(5, 0))
 
         return listbox
 
@@ -153,32 +163,134 @@ class MapApp:
             listbox.delete(index)
         self.update_map()
 
+    def open_advanced_options(self):
+        if self.advanced_win is not None and self.advanced_win.winfo_exists():
+            self.advanced_win.lift()
+            self.advanced_win.focus_force()
+            return
+
+        win = tk.Toplevel(self.root)
+        win.title("Advanced Options")
+        win.resizable(False, False)
+        self.advanced_win = win
+
+        frame = tk.LabelFrame(win, text="Custom Path Weights", padx=8, pady=8)
+        frame.pack(padx=15, pady=15, fill="both")
+        frame.columnconfigure(0, weight=1)
+        frame.columnconfigure(1, weight=1)
+
+        tk.Label(frame, text="Path (e.g. A-B):").grid(row=0, column=0, sticky="w")
+        tk.Label(frame, text="New Weight:").grid(row=0, column=1, sticky="w", padx=(5, 0))
+
+        path_entry = ttk.Entry(frame, width=10)
+        path_entry.grid(row=1, column=0, sticky="ew", pady=(0, 5))
+        weight_entry = ttk.Entry(frame, width=10)
+        weight_entry.grid(row=1, column=1, sticky="ew", padx=(5, 0), pady=(0, 5))
+
+        listbox = tk.Listbox(frame, height=5, width=20, selectmode="extended")
+        listbox.grid(row=2, column=0, columnspan=3, sticky="ew")
+        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=listbox.yview)
+        scrollbar.grid(row=2, column=3, sticky="ns")
+        listbox.config(yscrollcommand=scrollbar.set)
+
+        def refresh():
+            listbox.delete(0, "end")
+            for path, weight in self.changed_weights.items():
+                listbox.insert("end", f"{path}: {weight:g}")
+
+        def add(event=None):
+            path = self.validate_closed_path(path_entry.get())
+            if path is None:
+                return
+            try:
+                weight = float(weight_entry.get().strip())
+            except ValueError:
+                messagebox.showerror("Invalid Weight", "Weight must be a number.", parent=win)
+                return
+            if weight <= 0:
+                messagebox.showerror("Invalid Weight", "Weight must be greater than 0.", parent=win)
+                return
+            
+            # Treat A-B and B-A as the same path
+            a, b = path.split("-")
+            reverse = f"{b}-{a}"
+            if reverse in self.changed_weights:
+                del self.changed_weights[reverse]
+            self.changed_weights[path] = weight
+            refresh()
+            path_entry.delete(0, "end")
+            weight_entry.delete(0, "end")
+            path_entry.focus_set()
+
+        def remove(event=None):
+            keys = list(self.changed_weights.keys())
+            for index in reversed(listbox.curselection()):
+                del self.changed_weights[keys[index]]
+            refresh()
+
+        ttk.Button(frame, text="Add", width=5, command=add).grid(row=1, column=2, columnspan=2, padx=(5, 0), pady=(0, 5))
+        ttk.Button(frame, text="Remove", command=remove).grid(row=3, column=0, columnspan=4, sticky="ew", pady=(5, 0))
+        path_entry.bind("<Return>", lambda e: weight_entry.focus_set())
+        weight_entry.bind("<Return>", add)
+
+        ttk.Button(win, text="Close", command=win.destroy).pack(pady=(0, 10))
+
+        refresh()
+        path_entry.focus_set()
+
     def get_input_vals(self):
         start = self.start_var.get()
         transport = self.transport_var.get()
         flooded = list(self.flooded_listbox.get(0, "end"))
         closed = list(self.closed_listbox.get(0, "end"))
-        return {"start_pos":start, "transport":transport, "flooded":flooded, "closed":closed}
+        changed_weights = dict(self.changed_weights)
+        return {"start_pos":start, "transport":transport, "flooded":flooded, "closed":closed, "changed_weights":changed_weights}
 
-    def on_submit(self):
+    def on_submit(self, not_a_stop=None):
+        if not_a_stop is None:
+            not_a_stop = []
+
         input_vals = self.get_input_vals()
-        results = find_route(input_vals["start_pos"], input_vals["transport"], input_vals["flooded"], input_vals["closed"])
+        results = find_route(input_vals["start_pos"], input_vals["transport"], input_vals["flooded"], input_vals["closed"], not_a_stop, input_vals["changed_weights"])
 
         if not results:
-            messagebox.showerror("No Route", "No safe route could be found.")
+            self.show_results(None)
             return
 
         map_drawer.draw_route(results["route"], output_folder=RESULTS_PATH)
-        self.show_results(results)
+        self.show_results(results, not_a_stop)
 
-    def show_results(self, results):
+    def find_alternative(self, win, results, not_a_stop):
+        win.destroy()
+        self.on_submit(not_a_stop + [results["route"][-1]])
+
+    def save_instructions(self, instructions):
+        dom_lib_of_greatness.print_results(instructions)
+
+    def show_results(self, results, not_a_stop=None):
+        if not_a_stop is None:
+            not_a_stop = []
+
+        if results is None:
+            win = tk.Toplevel(self.root)
+            win.title("No Route")
+            win.resizable(False, False)
+
+            tk.Label(win, text="No safe path found.\nYou're cooked...", font=("Helvetica", 16, "bold")).pack(padx=20, pady=(15, 5))
+            tk.Label(win, text="💀", font=("Helvetica", 360)).pack(padx=20, pady=(0, 15))
+            return
+
         win = tk.Toplevel(self.root)
         win.title("Route Result")
         win.resizable(False, False)
 
-        istructions = dom_lib_of_greatness.print_instructions(results["route"][0],results["route"][1:-1],results["route"][-1])
-        tk.Label(win, text=istructions).pack(pady=(0, 8))
-        tk.Label(win, text=f"Distance: {results['distance']}    Time: {results['time']}").pack(pady=(0, 8))
+        istructions = dom_lib_of_greatness.print_instructions_v2(results)
+        tk.Label(win, text=istructions, justify="left").pack(pady=(0, 8))
+
+        btn_frame = tk.Frame(win)
+        btn_frame.pack(pady=(0, 8))
+        ttk.Button(btn_frame, text="Find Alternative Destination", command=lambda: self.find_alternative(win, results, not_a_stop)).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Save Instructions to File", command=lambda: self.save_instructions(istructions)).pack(side="left", padx=5)
 
         files = [f for f in os.listdir(RESULTS_PATH) if f.startswith("step") and f.endswith(".png")]
         files.sort(key=lambda f: int(f[4:-4]))
@@ -197,7 +309,7 @@ class MapApp:
 
         if frames:
             cycle()
-
+    
 
 if __name__ == "__main__":
     root = tk.Tk()
