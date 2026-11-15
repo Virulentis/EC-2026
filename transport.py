@@ -67,7 +67,7 @@ def nearest_safe_node(nodes, start, not_a_stop=[]):
         # closest place we haven't checked yet
         distance, name = heapq.heappop(to_visit)
 
-        # Is it safe? done and then trace the route back to the start
+        # Is it safe and not overcrowded? If so, complete! Then trace the route back to the start
         if name not in not_a_stop and nodes[name].enabled and nodes[name].elevation >= SAFE_ELEVATION_METRES:
             route = [name]
             while route[-1] != start:
@@ -94,7 +94,7 @@ def nearest_safe_node(nodes, start, not_a_stop=[]):
 
 
 
-def find_route(starting_node, transport, flooded, closed):
+def find_route(starting_node, transport, flooded, closed, not_a_stop=[]):
     
     
     Transportation_Mult = {
@@ -128,7 +128,7 @@ def find_route(starting_node, transport, flooded, closed):
     for name in flooded:
         nodes[name].enabled = False
 
-    result = nearest_safe_node(nodes, starting_node)
+    result = nearest_safe_node(nodes, starting_node, not_a_stop=not_a_stop)
 
     if result is None:
         return None     # no safe place at all
