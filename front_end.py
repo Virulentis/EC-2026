@@ -74,7 +74,6 @@ class MapApp:
         self.update_map()
 
     def update_map(self):
-        """Redraw resources/map.png from the current inputs, then show it."""
         vals = self.get_input_vals()
         try:
             map_drawer.draw_map_img(user_pos=vals["start_pos"], nodes=vals["flooded"], edges=vals["closed"])
@@ -84,15 +83,12 @@ class MapApp:
         self.display_map()
 
     def display_map(self):
-        """Show the map image, or reload it from disk if it's already shown."""
-        # Re-read the file each call so changes to resources/map.png are picked up
         self.map_photo = tk.PhotoImage(file=MAP_IMG_PATH)
         if self.img_label is None:
             self.img_label = tk.Label(self.image_frame, image=self.map_photo)
             self.img_label.pack()
         else:
             self.img_label.config(image=self.map_photo)
-        # Keep a reference so Tk doesn't garbage-collect the image
         self.img_label.image = self.map_photo
 
         #Template for the listboxes
