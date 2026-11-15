@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import webbrowser
 import map_drawer
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -160,25 +161,54 @@ class MapApp:
         closed = list(self.closed_listbox.get(0, "end"))
         return {"start_pos":start, "transport":transport, "flooded":flooded, "closed":closed}
 
-    def on_submit(self):
+    def on_submit(self, not_a_stop=None):
+        if not_a_stop is None:
+            not_a_stop = []
+
         input_vals = self.get_input_vals()
-        results = find_route(input_vals["start_pos"], input_vals["transport"], input_vals["flooded"], input_vals["closed"])
+        results = find_route(input_vals["start_pos"], input_vals["transport"], input_vals["flooded"], input_vals["closed"], not_a_stop)
 
         if not results:
-            messagebox.showerror("No Route", "No safe route could be found.")
+            self.show_results(None)
             return
 
         map_drawer.draw_route(results["route"], output_folder=RESULTS_PATH)
-        self.show_results(results)
+        self.show_results(results, not_a_stop)
 
-    def show_results(self, results):
+    def find_alternative(self, win, results, not_a_stop):
+        win.destroy()
+        self.on_submit(not_a_stop + [results["route"][-1]])
+
+    def save_instructions(self, instructions):
+        # TODO: save instructions to a file
+        pass
+
+    def show_results(self, results, not_a_stop=None):
+        if not_a_stop is None:
+            not_a_stop = []
+
+        if results is None:
+            win = tk.Toplevel(self.root)
+            win.title("No Route")
+            win.resizable(False, False)
+
+            tk.Label(win, text="No safe path found.\nYou're cooked...", font=("Helvetica", 16, "bold")).pack(padx=20, pady=(15, 5))
+            tk.Label(win, text="💀", font=("Helvetica", 360)).pack(padx=20, pady=(0, 15))
+            return
+
         win = tk.Toplevel(self.root)
         win.title("Route Result")
         win.resizable(False, False)
 
         istructions = dom_lib_of_greatness.print_instructions(results["route"][0],results["route"][1:-1],results["route"][-1])
         tk.Label(win, text=istructions).pack(pady=(0, 8))
-        tk.Label(win, text=f"Distance: {results['distance']}    Time: {results['time']}").pack(pady=(0, 8))
+
+        btn_frame = tk.Frame(win)
+        btn_frame.pack(pady=(0, 8))
+        ttk.Button(btn_frame, text="Find Alternative Destination",
+                   command=lambda: self.find_alternative(win, results, not_a_stop)).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Save Instructions to File",
+                   command=lambda: self.save_instructions(istructions)).pack(side="left", padx=5)
 
         files = [f for f in os.listdir(RESULTS_PATH) if f.startswith("step") and f.endswith(".png")]
         files.sort(key=lambda f: int(f[4:-4]))
@@ -197,7 +227,7 @@ class MapApp:
 
         if frames:
             cycle()
-
+    
 
 if __name__ == "__main__":
     root = tk.Tk()
