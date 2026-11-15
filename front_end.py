@@ -205,10 +205,8 @@ class MapApp:
 
         btn_frame = tk.Frame(win)
         btn_frame.pack(pady=(0, 8))
-        ttk.Button(btn_frame, text="Find Alternative Destination",
-                   command=lambda: self.find_alternative(win, results, not_a_stop)).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Save Instructions to File",
-                   command=lambda: self.save_instructions(istructions)).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Find Alternative Destination", command=lambda: self.find_alternative(win, results, not_a_stop)).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Save Instructions to File", command=lambda: self.save_instructions(istructions)).pack(side="left", padx=5)
 
         files = [f for f in os.listdir(RESULTS_PATH) if f.startswith("step") and f.endswith(".png")]
         files.sort(key=lambda f: int(f[4:-4]))
