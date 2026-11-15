@@ -53,30 +53,17 @@ roads: list[tuple[str, str, float]] = [
     ("O", "P", 2),
 ]
 
-nodes: dict[str, Node] = {name: Node(name, elevation, elevation >= SAFE_ELEVATION_METRES) for name, elevation in elevations.items()}
-
-
-# Adding edges to nodes and to the edges list
-edges: list[Edge] = []
-for src, dst, weight in roads:
-    a = nodes[src]
-    b = nodes[dst]
-    forward = Edge(f"{src}-{dst}", weight, a, b)
-    backward = Edge(f"{dst}-{src}", weight, b, a)
-    a.edges.append(forward)
-    b.edges.append(backward)
-    edges.append(forward)
-    edges.append(backward)
 
 
 
-print("Nodes:")
-for node in nodes.values():
-    print(f"  {node.name}: elevation={node.elevation}, enabled={node.enabled}")
 
-print("\nEdges:")
-for edge in edges:
-    print(f"  {edge.name}: weight={edge.weight}, from={edge.src.name}, to={edge.dst.name}")
+# print("Nodes:")
+# for node in nodes.values():
+#     print(f"  {node.name}: elevation={node.elevation}, enabled={node.enabled}")
+
+# print("\nEdges:")
+# for edge in edges:
+#     print(f"  {edge.name}: weight={edge.weight}, from={edge.src.name}, to={edge.dst.name}")
 
 
 def nearest_safe_node(nodes, start):
@@ -120,5 +107,23 @@ def nearest_safe_node(nodes, start):
     return None   # ran out of places to check: no safe place reachable
 
 
-nearest_safe = nearest_safe_node(nodes, "I")
-print(f"\nNearest safe node to 'I': {nearest_safe}")
+
+nodes: dict[str, Node] = {name: Node(name, elevation, elevation >= SAFE_ELEVATION_METRES) for name, elevation in elevations.items()}
+
+for src, dst, weight in roads:
+    a = nodes[src]
+    b = nodes[dst]
+    forward = Edge(f"{src}-{dst}", weight, a, b)
+    backward = Edge(f"{dst}-{src}", weight, b, a)
+    a.edges.append(forward)
+    b.edges.append(backward)
+    
+
+result = nearest_safe_node(nodes, "I")
+
+
+if result is None:
+    print("No safe node reachable from I")
+else:
+    name, distance, route = result
+    print(f"nearest safe node: {name}, distance: {distance}, route: {' -> '.join(route)}")
