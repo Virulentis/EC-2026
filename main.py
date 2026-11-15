@@ -1,8 +1,12 @@
 
+
 from classes import Edge, Node
+import heapq
 
-SAFE_ELEVATION_METRES = 20
 
+
+
+# Note: Since the Junctions (J1, J2, J3, J4) are at elevation 0, they are considered disabled in this context.
 elevations: dict[str, float] = {
     "A": 45, "B": 12, "C": 60, "D": 35, "E": 55, "F": 18, "G": 70, "H": 40,
     "I": 5, "J": 8, "K": 50, "L": 25, "M": 15, "N": 4, "O": 6, "P": 3, "J1": 0, "J2": 0, "J3": 0, "J4": 0
@@ -49,13 +53,90 @@ roads: list[tuple[str, str, float]] = [
     ("O", "P", 2),
 ]
 
+
+
+
+
+# print("Nodes:")
+# for node in nodes.values():
+#     print(f"  {node.name}: elevation={node.elevation}, enabled={node.enabled}")
+
+# print("\nEdges:")
+# for edge in edges:
+#     print(f"  {edge.name}: weight={edge.weight}, from={edge.src.name}, to={edge.dst.name}")
+
+
+def nearest_safe_node(nodes, start):
+    """
+    Returns the nearest safe node to the given node based on elevation.
+    Uses Dijkstra's algorithm to find the shortest path to a safe node.
+    If no safe nodes are found, it returns None.
+    """
+    
+    distance_to = {start: 0}      # shortest distance found to each place
+    came_from = {}                # which place we came from to get there
+    to_visit = [(0, start)]       # places waiting to be checked, as (distance, name)
+
+    while to_visit:
+        # closest place we haven't checked yet
+        distance, name = heapq.heappop(to_visit)
+
+        # Is it safe? done and then trace the route back to the start
+        if name != start and nodes[name].enabled:
+            route = [name]
+            while route[-1] != start:
+                route.append(came_from[route[-1]])
+            route.reverse()
+            return name, distance, route
+
+        # Otherwise, look at every road from the node
+        for road in nodes[name].edges:
+
+            # name of the node at the other end of the road
+            neighbour = road.dst.name
+
+            # Total distance to get to the neighbour from the start
+            new_distance = distance + road.weight
+
+            # Only keep it if the neighbour is safe AND this way is shorter than any we've found, infinity if we haven't found any way yet
+            if road.dst.enabled and new_distance < distance_to.get(neighbour, float("inf")):
+                distance_to[neighbour] = new_distance
+                came_from[neighbour] = name
+                heapq.heappush(to_visit, (new_distance, neighbour))
+
+    return None   # ran out of places to check: no safe place reachable
+
+SAFE_ELEVATION_METRES = 5
+starting_node = "I"
+
+
 nodes: dict[str, Node] = {name: Node(name, elevation, elevation >= SAFE_ELEVATION_METRES) for name, elevation in elevations.items()}
-edges: list[Edge] = [Edge(f"{src}-{dst}", weight, nodes[src], nodes[dst]) for src, dst, weight in roads]
 
-print("Nodes:")
-for node in nodes.values():
-    print(f"  {node.name}: elevation={node.elevation}, enabled={node.enabled}")
+for src, dst, weight in roads:
+    a = nodes[src]
+    b = nodes[dst]
+    forward = Edge(f"{src}-{dst}", weight, a, b)
+    backward = Edge(f"{dst}-{src}", weight, b, a)
+    a.edges.append(forward)
+    b.edges.append(backward)
+    
 
-print("\nEdges:")
-for edge in edges:
-    print(f"  {edge.name}: weight={edge.weight}, from={edge.src.name}, to={edge.dst.name}")
+
+result = nearest_safe_node(nodes, starting_node)
+
+if result is None:
+    print(f"No safe node reachable from {starting_node}.")
+else:
+    name, distance, route = result
+    print(f"nearest safe node: {name}, distance: {distance}, route: {' -> '.join(route)}")
+
+    # Alternative: pretend the first choice is closed, and search again
+    nodes[name].enabled = False
+    alternative = nearest_safe_node(nodes, starting_node)
+    nodes[name].enabled = True    # put it back so later searches aren't affected
+
+    if alternative is None:
+        print(f"No safe alternative node reachable from {starting_node}.")
+    else:
+        alt_name, alt_distance, alt_route = alternative
+        print(f"nearest safe alternative node: {alt_name}, distance: {alt_distance}, route: {' -> '.join(alt_route)}")
