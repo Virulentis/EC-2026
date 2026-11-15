@@ -137,7 +137,7 @@ def find_route(starting_node, transport, flooded, closed, not_a_stop=[], changed
     best = {
         "name": name,
         "distance": distance,
-        "time": round(distance * Transportation_Mult.get(transport, 1.0), 2),
+        "time": round(distance / Transportation_Mult.get(transport, 1.0), 2),
         "route": route,
         "desination_elevation": nodes[name].elevation
     }
