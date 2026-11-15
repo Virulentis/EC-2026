@@ -3,6 +3,7 @@ import re
 import map_drawer
 import tkinter as tk
 from tkinter import ttk, messagebox
+from transport import find_route
 
 MAP_IMG_PATH = r"resources/map.png"
 START_LOCATIONS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
@@ -162,7 +163,7 @@ class MapApp:
 
     def on_submit(self):
         input_vals = self.get_input_vals()
-        print(input_vals)
+        transport = find_route(input_vals["start_pos"], input_vals["transport"], input_vals["flooded"], input_vals["closed"])
 
 
 if __name__ == "__main__":
