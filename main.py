@@ -56,16 +56,6 @@ roads: list[tuple[str, str, float]] = [
 
 
 
-
-# print("Nodes:")
-# for node in nodes.values():
-#     print(f"  {node.name}: elevation={node.elevation}, enabled={node.enabled}")
-
-# print("\nEdges:")
-# for edge in edges:
-#     print(f"  {edge.name}: weight={edge.weight}, from={edge.src.name}, to={edge.dst.name}")
-
-
 def nearest_safe_node(nodes, start):
     """
     Returns the nearest safe node to the given node based on elevation.
@@ -82,7 +72,7 @@ def nearest_safe_node(nodes, start):
         distance, name = heapq.heappop(to_visit)
 
         # Is it safe? done and then trace the route back to the start
-        if name != start and nodes[name].enabled:
+        if name != start and nodes[name].enabled and nodes[name].elevation >= SAFE_ELEVATION_METRES:
             route = [name]
             while route[-1] != start:
                 route.append(came_from[route[-1]])
@@ -106,11 +96,24 @@ def nearest_safe_node(nodes, start):
 
     return None   # ran out of places to check: no safe place reachable
 
-SAFE_ELEVATION_METRES = 5
+SAFE_ELEVATION_METRES = 20
 starting_node = "I"
+Transportation_Mult = {
+    "Car": 1.0,
+    "Bicycle": 1.5,
+    "Walking": 3.33
+}
+transport = "Car"
+flooded = ['G', 'A', 'C']
+
+{'start_pos': 'A', 'transport': 'Car', 'flooded': ['G', 'A', 'C'], 'closed': ['B-C', 'N-O']}
+
+for name in flooded:
+    nodes[name].enabled = False
 
 
-nodes: dict[str, Node] = {name: Node(name, elevation, elevation >= SAFE_ELEVATION_METRES) for name, elevation in elevations.items()}
+
+nodes: dict[str, Node] = {name: Node(name, elevation, True) for name, elevation in elevations.items()}
 
 for src, dst, weight in roads:
     a = nodes[src]
@@ -139,4 +142,4 @@ else:
         print(f"No safe alternative node reachable from {starting_node}.")
     else:
         alt_name, alt_distance, alt_route = alternative
-        print(f"nearest safe alternative node: {alt_name}, distance: {alt_distance}, route: {' -> '.join(alt_route)}")
+        print(f"nearest safe alternative node: {alt_name}, distance: {alt_distance}, time required: {alt_distance * Transportation_Mult.get(transport, 1.0)} {' -> '.join(alt_route)}")
