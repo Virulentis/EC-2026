@@ -49,6 +49,11 @@ def print_instructions_v2(results:dict):
     return instructions
 
 
+def print_results(results):
+
+  with open ("print_results.txt", "w") as file:
+     file.write(results)
+
 def main():
 
     # end = "K"
@@ -68,6 +73,10 @@ def main():
     }
     result = print_instructions_v2(input)
     print(result)
+
+    print_results(result)
+
+
 
 if __name__ == "__main__":
     main()
