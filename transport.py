@@ -94,7 +94,7 @@ def nearest_safe_node(nodes, start, not_a_stop=[]):
 
 
 
-def find_route(starting_node, transport, flooded, closed, not_a_stop=[]):
+def find_route(starting_node, transport, flooded, closed, not_a_stop=[], changed_weights={}):
     
     
     Transportation_Mult = {
@@ -116,6 +116,9 @@ def find_route(starting_node, transport, flooded, closed, not_a_stop=[]):
     nodes: dict[str, Node] = {name: Node(name, elevation, True) for name, elevation in elevations.items()}
 
     for src, dst, weight in roads:
+
+        # Update the weight if it has been changed from input check either direction, otherwise use the default weight
+        weight = changed_weights.get(f"{src}-{dst}", changed_weights.get(f"{dst}-{src}", weight))
         a = nodes[src]
         b = nodes[dst]
         forward = Edge(f"{src}-{dst}", weight, a, b)
