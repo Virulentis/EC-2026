@@ -1,6 +1,7 @@
 import re
 import tkinter as tk
 from tkinter import ttk, messagebox
+from transport import find_route
 
 MAP_IMG_PATH = r"resources/map.png"
 START_LOCATIONS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
@@ -122,7 +123,7 @@ class MapApp:
         flooded = list(self.flooded_listbox.get(0, "end"))
         closed = list(self.closed_listbox.get(0, "end"))
         input_vals = {"start_pos":start, "transport":transport, "flooded":flooded, "closed":closed}
-        print(input_vals)
+        transport = find_route(start, transport, flooded, closed)
 
 
 if __name__ == "__main__":
