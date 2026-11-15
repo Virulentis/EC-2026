@@ -10,8 +10,8 @@ import dom_lib_of_greatness
 
 MAP_IMG_PATH = r"temp/map.png"
 RESULTS_PATH = r"temp/result"
-START_LOCATIONS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
 POSSIBLE_LOCATION = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'J1', 'J2', 'J3', 'J4']
+START_LOCATIONS = POSSIBLE_LOCATION
 TRANSPORT_OPTIONS = ["Car", "Walk", "Walking with A Child", "Wheelchair", "Bicycle", "Wheelchair (stolen)"]
 CLOSED_PATH_PATTERN = re.compile(r"^([A-Za-z]\d?)-?([A-Za-z]\d?)$")
 

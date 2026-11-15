@@ -5,7 +5,7 @@ def print_instructions_v2(results:dict):
     instructions = "EVACUATION ROUTE INSTRUCTIONS:\n"
 
     # destination
-    instructions += f"Starting Location: {results['name']}\nDestination: {results['route'][-1]}\n\n"
+    instructions += f"Starting Location: {results['route'][0]}\nDestination: {results['route'][-1]}\n\n"
 
     # route
     instructions += "Location Path:\n\n"
