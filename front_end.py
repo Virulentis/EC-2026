@@ -67,7 +67,7 @@ class MapApp:
         self.lists_frame.columnconfigure(1, weight=1, uniform="lists")
 
         self.flooded_listbox = self.build_list_frame(self.lists_frame, "Flooded Regions", column=0, validator=self.validate_flooded, hint="e.g. A or J1")
-        self.closed_listbox = self.build_list_frame(self.lists_frame, "Closed Paths", column=1, validator=self.validate_closed_path, hint="e.g. A-B")
+        self.closed_listbox = self.build_list_frame(self.lists_frame, "Closed Paths", column=1, validator=self.validate_closed_path, hint="e.g. A-J1")
 
         #Advanced Options (custom path weights) - stored here so they persist when the window closes
         self.changed_weights = {}
