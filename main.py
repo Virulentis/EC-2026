@@ -1,11 +1,11 @@
 
-from Python.src.classes import Edge, Node
+from classes import Edge, Node
 
 SAFE_ELEVATION_METRES = 20
 
 elevations: dict[str, float] = {
     "A": 45, "B": 12, "C": 60, "D": 35, "E": 55, "F": 18, "G": 70, "H": 40,
-    "I": 5, "J": 8, "K": 50, "L": 25, "M": 15, "N": 4, "O": 6, "P": 3,
+    "I": 5, "J": 8, "K": 50, "L": 25, "M": 15, "N": 4, "O": 6, "P": 3, "J1": 0, "J2": 0, "J3": 0, "J4": 0
 }
 
 roads: list[tuple[str, str, float]] = [
