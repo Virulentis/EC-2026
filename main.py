@@ -2,9 +2,9 @@
 
 from classes import Edge, Node
 import heapq
-import math
 
-SAFE_ELEVATION_METRES = 20
+
+
 
 # Note: Since the Junctions (J1, J2, J3, J4) are at elevation 0, they are considered disabled in this context.
 elevations: dict[str, float] = {
@@ -106,6 +106,8 @@ def nearest_safe_node(nodes, start):
 
     return None   # ran out of places to check: no safe place reachable
 
+SAFE_ELEVATION_METRES = 5
+starting_node = "I"
 
 
 nodes: dict[str, Node] = {name: Node(name, elevation, elevation >= SAFE_ELEVATION_METRES) for name, elevation in elevations.items()}
@@ -119,11 +121,22 @@ for src, dst, weight in roads:
     b.edges.append(backward)
     
 
-result = nearest_safe_node(nodes, "I")
 
+result = nearest_safe_node(nodes, starting_node)
 
 if result is None:
-    print("No safe node reachable from I")
+    print(f"No safe node reachable from {starting_node}.")
 else:
     name, distance, route = result
     print(f"nearest safe node: {name}, distance: {distance}, route: {' -> '.join(route)}")
+
+    # Alternative: pretend the first choice is closed, and search again
+    nodes[name].enabled = False
+    alternative = nearest_safe_node(nodes, starting_node)
+    nodes[name].enabled = True    # put it back so later searches aren't affected
+
+    if alternative is None:
+        print(f"No safe alternative node reachable from {starting_node}.")
+    else:
+        alt_name, alt_distance, alt_route = alternative
+        print(f"nearest safe alternative node: {alt_name}, distance: {alt_distance}, route: {' -> '.join(alt_route)}")
