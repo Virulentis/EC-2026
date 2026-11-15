@@ -105,11 +105,6 @@ def find_route(starting_node, transport, flooded, closed, not_a_stop=[], changed
         "Wheelchair": 0.1,
         "Wheelchair (stolen)": 0.05
     }
-    # starting_node = "I"
-    # transport = "Car"
-    # flooded = ['G', 'A', 'C']
-    # closed = ['B-C', 'N-O']
-    changed_weights = {"G-K": 7, "J4-L": 3}   # road: new weight
 
     
 
