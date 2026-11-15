@@ -1,0 +1,13 @@
+EVACUATION ROUTE INSTRUCTIONS:
+Starting Location: P
+Destination: L
+
+Location Path:
+
+ 1. P -> O
+ 2. O -> L
+
+Total Distance: 6 units
+Estimated Time: 6.0 hours
+Destination Elevation: 25
+
