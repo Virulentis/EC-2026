@@ -1,5 +1,5 @@
 
-from Python.classes import Edge, Node
+from Python.src.classes import Edge, Node
 
 SAFE_ELEVATION_METRES = 20
 
@@ -51,3 +51,11 @@ roads: list[tuple[str, str, float]] = [
 
 nodes: dict[str, Node] = {name: Node(name, elevation, elevation >= SAFE_ELEVATION_METRES) for name, elevation in elevations.items()}
 edges: list[Edge] = [Edge(f"{src}-{dst}", weight, nodes[src], nodes[dst]) for src, dst, weight in roads]
+
+print("Nodes:")
+for node in nodes.values():
+    print(f"  {node.name}: elevation={node.elevation}, enabled={node.enabled}")
+
+print("\nEdges:")
+for edge in edges:
+    print(f"  {edge.name}: weight={edge.weight}, from={edge.src.name}, to={edge.dst.name}")
